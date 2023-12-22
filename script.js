@@ -1,4 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
@@ -17,6 +18,8 @@ let signUpSelected = true;
 const app = initializeApp(firebaseConfig);
 
 const auth = getAuth(app);
+
+const db = getFirestore(app);
 
 const nameInput = document.querySelector("#name");
 const emailInput = document.querySelector("#email");
@@ -61,36 +64,29 @@ signUpButton.addEventListener("click", () => {
 
 const form = document.querySelector("#form");
 
-const handleButtonClick = (e) => {
+const handleButtonClick = async (e) => {
   e.preventDefault();
 
-  if (signUpSelected) {
-    createUserWithEmailAndPassword(auth, emailInput.value, passwordInput.value)
-      .then((response) => {
-        console.log(response);
-      })
-      .catch((err) => {
-        console.log(err);
-        alert(err.message);
-      });
-  } else {
-    signInWithEmailAndPassword(auth, emailInput.value, passwordInput.value)
-      .then((response) => {
-        console.log(response);
+  try {
+    if (signUpSelected) {
+      const userCredential = await createUserWithEmailAndPassword(auth, emailInput.value, passwordInput.value);
 
-        window.location.href = "home.html";
-      })
-      .catch((err) => {
-        console.log(err);
-        alert(err.message);
+      await addDoc(collection(db, "users"), {
+        uid: userCredential.user.uid,
+        name: nameInput.value,
+        email: emailInput.value,
       });
+
+      console.log("User registered successfully!");
+    } else {
+      const userCredential = await signInWithEmailAndPassword(auth, emailInput.value, passwordInput.value);
+      console.log(userCredential);
+      // window.location.href = "home.html";
+    }
+  } catch (err) {
+    console.error(err);
+    alert(err.message);
   }
 };
-
-auth.onAuthStateChanged((user) => {
-  if (user) {
-    console.log(user);
-  }
-});
 
 form.addEventListener("submit", handleButtonClick);
