@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 const firebaseConfig = {
@@ -15,9 +15,8 @@ const firebaseConfig = {
 let signUpSelected = true;
 
 const app = initializeApp(firebaseConfig);
-const db = getDatabase();
+
 const auth = getAuth(app);
-const dbref = ref(db);
 
 const nameInput = document.querySelector("#name");
 const emailInput = document.querySelector("#email");
@@ -28,6 +27,8 @@ const registerButton = document.querySelector(".register");
 const signInButton = document.querySelector("#sign-in-btn");
 const signUpButton = document.querySelector("#sign-up-btn");
 
+const nameInputContainer = document.querySelector("#name-input-container");
+
 const title = document.querySelector("#title");
 
 signInButton.addEventListener("click", () => {
@@ -37,9 +38,13 @@ signInButton.addEventListener("click", () => {
   signUpSelected = false;
 
   registerButton.textContent = "Sign In";
-  nameInput.classList.toggle("hidden");
+
+  nameInput.disabled = !nameInput.disabled;
+  nameInputContainer.classList.toggle("hidden");
+
   title.textContent = "Login";
 });
+
 signUpButton.addEventListener("click", () => {
   signUpButton.classList.replace("not-selected", "selected");
   signInButton.classList.replace("selected", "not-selected");
@@ -47,7 +52,10 @@ signUpButton.addEventListener("click", () => {
   signUpSelected = true;
 
   registerButton.textContent = "Sign Up";
-  nameInput.classList.toggle("hidden");
+
+  nameInput.disabled = !nameInput.disabled;
+  nameInputContainer.classList.toggle("hidden");
+
   title.textContent = "Register";
 });
 
@@ -60,7 +68,6 @@ const handleButtonClick = (e) => {
     createUserWithEmailAndPassword(auth, emailInput.value, passwordInput.value)
       .then((response) => {
         console.log(response);
-        set(ref(db, "UsersAuthList/" + response.user.uid), { userName: nameInput.value });
       })
       .catch((err) => {
         console.log(err);
@@ -69,11 +76,9 @@ const handleButtonClick = (e) => {
   } else {
     signInWithEmailAndPassword(auth, emailInput.value, passwordInput.value)
       .then((response) => {
-        get(child(dbref, "UsersAuthList/" + response.user.uid)).then((res) => {
-          if (res.exists) {
-            console.log(res);
-          }
-        });
+        console.log(response);
+
+        window.location.href = "home.html";
       })
       .catch((err) => {
         console.log(err);
@@ -81,5 +86,11 @@ const handleButtonClick = (e) => {
       });
   }
 };
+
+auth.onAuthStateChanged((user) => {
+  if (user) {
+    console.log(user);
+  }
+});
 
 form.addEventListener("submit", handleButtonClick);
