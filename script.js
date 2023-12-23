@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, doc, getDocs, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
@@ -31,6 +31,7 @@ const signInButton = document.querySelector("#sign-in-btn");
 const signUpButton = document.querySelector("#sign-up-btn");
 
 const nameInputContainer = document.querySelector("#name-input-container");
+const logoutButton = document.querySelector("#logout-btn");
 
 const title = document.querySelector("#title");
 
@@ -90,3 +91,28 @@ const handleButtonClick = async (e) => {
 };
 
 form.addEventListener("submit", handleButtonClick);
+
+const fetchDB = async () => {};
+
+auth.onAuthStateChanged((user) => {
+  // if (user) {
+  //   db.collection("users")
+  //     .get()
+  //     .then((snapshot) => {
+  //       snapshot.docs.forEach((doc) => {
+  //         console.log(doc.data());
+  //       });
+  //     });
+  // }
+});
+
+logoutButton.addEventListener("click", () => {
+  auth
+    .signOut()
+    .then(() => {
+      console.log("User signed out");
+    })
+    .catch((error) => {
+      console.error("Error signing out:", error);
+    });
+});
